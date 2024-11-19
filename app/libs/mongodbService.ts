@@ -4,6 +4,7 @@
 export const getData = async(collectionName: string, payload: any) => {
    
     try {
+      console.log("process.env", process.env);
       console.log("process.env.MONGODB_USERNAME", process.env.MONGODB_USERNAME);
         await connectMongoDb();
 

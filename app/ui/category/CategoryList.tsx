@@ -28,10 +28,14 @@ export default function CategoryList() {
     if( list === null ) return (<Loading />);
 
     return (
-        <div className="flex flex-row flex-wrap">
-            {list.map((category: JSONObject, idx: number) => (
-                <CategoryListItem key={category._id} data={category} />
-            ))}
+        <div className="top_lgnds">
+            <div className="list_lgnds">
+                <div className="pnl">
+                    {list.map((category: JSONObject, idx: number) => (
+                        <CategoryListItem key={category._id} data={category} />
+                    ))}
+                </div>
+            </div>
         </div>
     )
 }

@@ -1,49 +1,105 @@
 import React, { useState, useEffect } from 'react';
 import OrgUnitSelector from './OrgUnitSelector';
 import YearSelector from './YearSelector';
+import RunButton from './RunButton';
+import ExportPdfButton from './ExportPdfButton';
+import { JSONObject } from '@/types/definations';
+import MultiSelectDropdown from '../basics/MultiSelectDropdown';
+import NeedSelector from './NeedSelector';
 
-const SRHRJNeedList = [
-  'Promoting sexual and gender diversity',
-  'Comprehensive sexuality education to young people',
-  'Preventing sexual and gender-based violence',
-  'Access to safe and legal abortion',
-  'Access to safe and legal abortion',
-  'Promoting gender equality'
-];
 
-export default function FilterPage({ onApplyFilters }: {onApplyFilters: (selectedOrgunit: string, selectedYear: string, selectedSRHRJNeed: string) => void}) {
-  const [selectedOrgunit, setSelectedOrgunit] = useState('');
-  const [selectedYear, setSelectedYear] = useState('');
-  const [selectedSRHRJNeed, setSelectedSRHRJNeed] = useState('');
+export default function FilterPage({
+    onApplyFilters
+}: {
+    onApplyFilters: (filterData: JSONObject) => void;
+}) {
+    const [selectedOrgunits, setSelectedOrgunits] = useState<JSONObject[]>([]);
+    const [selectedYears, setSelectedYears] = useState<JSONObject[]>([]);
+    const [selectedNeeds, setSelectedNeeds] = useState<JSONObject[]>(
+        []
+    );
 
-  const handleApplyFilters = () => {
-    onApplyFilters(selectedOrgunit, selectedYear, selectedSRHRJNeed);
-  };
+    const [showOptionsForm, setShowOptionsForm] = useState(false);
 
-  return (
-    <div>
-      {/* Orgunit Filter */}
-      <div>Select Orgunit</div>
-      <OrgUnitSelector onItemSelected={(orgUnitId: string) => setSelectedOrgunit(orgUnitId)} />
+    const handleApplyFilters = () => {
+        onApplyFilters({orgUnits: selectedOrgunits, years: selectedYears, SRHRJNeeds: selectedNeeds});
+    };
 
-      {/* Year Filter */}
-      <div>Select Year</div>
-      <YearSelector onItemSelected={(year: string) => setSelectedYear(year)} />
+    let opened = showOptionsForm ? 'open' : '';
 
-      {/* SRHRJNeed Filter */}
-      <div>Select SRHRJ Need</div>
-      <select
-        value={selectedSRHRJNeed}
-        onChange={(e) => setSelectedSRHRJNeed(e.target.value)}
-      >
-        <option>Select SRHRJ Need</option>
-        {SRHRJNeedList.map((need: string, idx: number) => (
-          <option key={idx}>{need}</option>
-        ))}
-      </select>
+    return (
+        <>
+            <div className={`search_menu ${opened}`}>
+                <div className="cta_area">
+                    <div
+                        className="cnt_ipanel"
+                        onClick={(event) =>
+                            setShowOptionsForm(!showOptionsForm)
+                        }
+                    >
+                        <div className="ipanel" title="Search">
+                            <div
+                                id="panel_sh"
+                                className={`panel_sh ${opened}`}
+                            ></div>
+                        </div>
+                    </div>
+					
+                    <RunButton data={{orgUnits: selectedOrgunits, years: selectedYears, needs: selectedNeeds}} />
 
-      {/* Apply Filters Button */}
-      <button onClick={handleApplyFilters}>Apply Filters</button>
-    </div>
-  );
-};
+                    <ExportPdfButton />
+                </div>
+
+                <div className="cnt_options">
+                    <div className="grd_srh">
+                        <div className="cnt_sort">
+							
+                            <div className="grd_ou">
+                                <div className="msbx-ou">
+                                    <OrgUnitSelector
+                                        onItemSelected={(selectedItems) =>
+                                            setSelectedOrgunits(selectedItems)
+                                        }
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="grd_srv">
+                                <div className="msbx-srv">
+									<NeedSelector onItemSelected={(
+											selectedItems: JSONObject[]
+										) => setSelectedNeeds(selectedItems)}
+									/>
+                                </div>
+                            </div>
+                            <div className="grd_yrs">
+								<div className="msbx-yrs">
+									<YearSelector
+										onItemSelected={(
+											selectedItems: JSONObject[]
+										) => setSelectedYears(selectedItems)}
+									/>
+								</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="grd_others">
+                        <div
+                            className="top_left"
+                            style={{ color: '#000', fontSize: 'medium' }}
+                        >
+                            {/* <div className="l1">Commitment 2.1 &amp; 2.2 <a href="https://docs.google.com/document/d/1-egmao8vqhMdol2E20onBdJ6S34CHQ9RKsjrFwx9cDk" target="_blank">( v1.6 )</a></div> */}
+                            <div className="l2">
+                                <div id="top_cn"></div>
+                                <div id="top_ou"></div>
+                                <div id="top_yrs"></div>
+                                <div id="top_srv"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="grd_footer">© FOS Feminista.</div>
+                </div>
+            </div>
+        </>
+    );
+}

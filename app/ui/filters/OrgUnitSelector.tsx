@@ -1,46 +1,39 @@
 import { JSONObject } from '@/types/definations';
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Loading from '../basics/Loading';
-import * as mongodb from "@/app/libs/mongodbService";
+import * as mongodb from '@/app/libs/mongodbService';
+import * as Utils from '@/app/libs/utils';
+import MultiSelectDropdown from '../basics/MultiSelectDropdown';
+
+export default function OrgUnitSelector({
+    onItemSelected
+}: {
+    onItemSelected: (orgUnitList: JSONObject[]) => void;
+}) {
+    const [list, setList] = useState<JSONObject[] | null>(null);
+    const [errMsg, setErrMsg] = useState('');
+    const [selectedList, setSelectedList] = useState<JSONObject[]>([]);
+    const [openList, setOpenList] = useState(false);
+
+    const fetchOrgunits = async () => {
+        const response = await mongodb.getData('organisationunits', {});
+        if (response.status === 'success') {
+            setList(response.data);
+        } else {
+            setErrMsg(response.message);
+        }
+    };
+
+    useEffect(() => {
+        fetchOrgunits();
+    }, []);
 
 
-export default function OrgUnitSelector({ onItemSelected }: { onItemSelected: (orgUnitId: string) => void }) {
+    if (list === null) return <Loading />;
 
-	const [list, setList] = useState<JSONObject[] | null>(null);
-	const [errMsg, setErrMsg] = useState("");
-	const [selectedOrgunit, setSelectedOrgunit] = useState('');
-
-	const fetchOrgunits = async () => {
-		const response = await mongodb.getData("organisationunits", {});
-		if (response.status === "success") {
-			setList(response.data);
-		}
-		else {
-			setErrMsg(response.message);
-		}
-	}
-
-	useEffect(() => {
-		fetchOrgunits();
-	}, []);
-
-	const handleItemSeleted = (e: React.ChangeEvent<HTMLSelectElement>) => {
-		const selectedValue = e.target.value;
-		setSelectedOrgunit( selectedValue );
-		onItemSelected( selectedValue );
-	}
-
-	if (list === null) return (<Loading />);
-
-	return (
-		<select
-			value={selectedOrgunit}
-			onChange={(e) => handleItemSeleted(e)}
-		>
-			<option>[Select Orgunit]</option>
-			{list.map((orgunit) => (
-				<option key={orgunit._id} value={orgunit._id}>{orgunit.name}</option>
-			))}
-		</select>
-	)
+    return (
+        <div className="grd_ou">
+		    <MultiSelectDropdown options={list} placeholder="O.Unit" onChange={(selectedItems) => {onItemSelected(selectedItems)}} />
+        </div>
+    );
 }
